@@ -1,28 +1,66 @@
 package shortener
 
-import "context"
+import (
+	"context"
+	"crypto/rand"
+	"math/big"
+	"time"
+)
 
-type ShortenerService interface {
-	ShortenURL(ctx context.Context, url string, expiry string) (string, error)
-	GetOriginalURL(ctx context.Context, shortUrl string) (string, error)
+const shortCodeAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+type ShortenerService struct {
+	repo *ShortenerRepository
 }
 
-type shortenerService struct {
-	repo ShortenerRepository
-}
-
-func NewShortenerService(repo ShortenerRepository) ShortenerService {
-	return &shortenerService{
+func NewShortenerService(repo *ShortenerRepository) *ShortenerService {
+	return &ShortenerService{
 		repo: repo,
 	}
 }
 
-func (s *shortenerService) ShortenURL(ctx context.Context, url string, expiry string) (string, error) {
-	// Implement the logic to generate a short URL and save it in the repository
-	return "", nil
+func (s *ShortenerService) ShortenURL(ctx context.Context, url string, expiry time.Duration) (string, error) {
+	shortCode, err := generateShortCode(6)
+	if err != nil {
+		return "", err
+	}
+
+	var record Record
+	record.URL = url
+	record.ShortURL = shortCode
+	record.ExpiresAt = time.Now().Add(expiry)
+
+	if err := s.repo.Save(ctx, record); err != nil {
+		return "", err
+	}
+
+	return record.ShortURL, nil
 }
 
-func (s *shortenerService) GetOriginalURL(ctx context.Context, shortUrl string) (string, error) {
-	// Implement the logic to retrieve the original URL from the repository using the short URL
-	return "", nil
+func (s *ShortenerService) GetURL(ctx context.Context, shortUrl string) (string, error) {
+	url, err := s.repo.Get(ctx, shortUrl)
+	if err != nil {
+		return "", err
+	}
+
+	return url, nil
+}
+
+func generateShortCode(length int) (string, error) {
+	if length <= 0 {
+		length = 6
+	}
+
+	chars := make([]byte, length)
+	alphabetLen := big.NewInt(int64(len(shortCodeAlphabet)))
+
+	for i := range chars {
+		n, err := rand.Int(rand.Reader, alphabetLen)
+		if err != nil {
+			return "", err
+		}
+		chars[i] = shortCodeAlphabet[n.Int64()]
+	}
+
+	return string(chars), nil
 }

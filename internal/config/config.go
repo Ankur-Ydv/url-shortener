@@ -16,6 +16,8 @@ type Config struct {
 
 	RedisHost string
 	RedisPort string
+
+	APPENV string
 }
 
 func LoadConfig() (*Config, error) {
@@ -32,6 +34,8 @@ func LoadConfig() (*Config, error) {
 
 		RedisHost: getValue("REDIS_HOST", "localhost"),
 		RedisPort: getValue("REDIS_PORT", "6379"),
+
+		APPENV: getValue("APP_ENV", "development"),
 	}, nil
 }
 

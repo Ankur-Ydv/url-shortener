@@ -6,27 +6,39 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type ShortenerRepository interface {
-	Save(ctx context.Context, url string, shortUrl string, expiry string) error
-	Get(ctx context.Context, shortUrl string) (string, error)
-}
-
-type shortenerRepository struct {
+type ShortenerRepository struct {
 	dbPool *pgxpool.Pool
 }
 
-func NewShortenerRepository(dbPool *pgxpool.Pool) ShortenerRepository {
-	return &shortenerRepository{
+func NewShortenerRepository(dbPool *pgxpool.Pool) *ShortenerRepository {
+	return &ShortenerRepository{
 		dbPool: dbPool,
 	}
 }
 
-func (r *shortenerRepository) Save(ctx context.Context, url string, shortUrl string, expiry string) error {
-	// Implement the logic to save the URL record in the database
-	return nil
+const saveUrlQuery = `
+INSERT INTO urls (short_url, original_url, expiry) VALUES ($1, $2, $3)
+`
+
+func (r *ShortenerRepository) Save(ctx context.Context, record Record) error {
+
+	_, err := r.dbPool.Exec(ctx, saveUrlQuery, record.ShortURL, record.URL, record.ExpiresAt)
+
+	return err
 }
 
-func (r *shortenerRepository) Get(ctx context.Context, shortUrl string) (string, error) {
-	// Implement the logic to retrieve the original URL from the database using the short URL
-	return "", nil
+const getUrlQuery = `
+SELECT original_url FROM urls WHERE short_url = $1 AND (expiry IS NULL OR expiry > NOW())
+`
+
+func (r *ShortenerRepository) Get(ctx context.Context, shortUrl string) (string, error) {
+
+	rows := r.dbPool.QueryRow(ctx, getUrlQuery, shortUrl)
+
+	var url string
+	if err := rows.Scan(&url); err != nil {
+		return "", err
+	}
+
+	return url, nil
 }
