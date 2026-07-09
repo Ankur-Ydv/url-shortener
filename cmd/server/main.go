@@ -7,6 +7,7 @@ import (
 	"github.com/Ankur-Ydv/url-shortener/internal/shortener"
 	"github.com/Ankur-Ydv/url-shortener/pkg/logger"
 	"github.com/Ankur-Ydv/url-shortener/pkg/postgres"
+	"github.com/Ankur-Ydv/url-shortener/pkg/redis"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -34,8 +35,15 @@ func main() {
 	}
 	defer postgres.ClosePostgresConnection(context.Background(), dbpool)
 
+	redisclient, err := redis.NewRedisClient(context.Background(), cfg.RedisHost, cfg.RedisPort)
+	if err != nil {
+		logger.Log.Error("failed to connect to redis", zap.Error(err))
+		return
+	}
+	defer redis.CloseRedisClient(context.Background(), redisclient)
+
 	shortenerRepo := shortener.NewShortenerRepository(dbpool)
-	shortenerService := shortener.NewShortenerService(shortenerRepo)
+	shortenerService := shortener.NewShortenerService(shortenerRepo, redisclient)
 	shortenerHandler := shortener.NewShortenerHandler(shortenerService)
 
 	shortener.RegisterShortenerRoutes(router, shortenerHandler)
@@ -44,4 +52,6 @@ func main() {
 		logger.Log.Error("failed to start server", zap.Error(err))
 		return
 	}
+
+	logger.Log.Info("server started on port 8080")
 }
