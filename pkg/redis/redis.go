@@ -20,12 +20,8 @@ func NewRedisClient(context context.Context, redisHost string, redisPort string)
 	return client, nil
 }
 
-func CloseRedisClient(context context.Context, client *redis.Client) error {
-	if err := client.Close(); err != nil {
-		return fmt.Errorf("%v", err)
-	}
-
-	return nil
+func CloseRedisClient(context context.Context, client *redis.Client) {
+	_ = client.Close()
 }
 
 func SetKey(context context.Context, client *redis.Client, key string, value string) error {

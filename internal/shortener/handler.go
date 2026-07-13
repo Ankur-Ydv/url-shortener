@@ -58,7 +58,9 @@ func (h *ShortenerHandler) RedirectURL(ctx *gin.Context) {
 }
 
 func handleCurrentDomainLoopError(url string) error {
-	godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		return fmt.Errorf("Might be domain host itself: %v", err)
+	}
 
 	appDomain := os.Getenv("APP_DOMAIN")
 	appPort := os.Getenv("APP_PORT")

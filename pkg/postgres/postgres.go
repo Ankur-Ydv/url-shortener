@@ -20,12 +20,6 @@ func GetPostgresConnection(context context.Context, dsn string) (*pgxpool.Pool, 
 	return dbpool, nil
 }
 
-func ClosePostgresConnection(context context.Context, dbpool *pgxpool.Pool) error {
+func ClosePostgresConnection(context context.Context, dbpool *pgxpool.Pool) {
 	dbpool.Close()
-
-	if err := dbpool.Ping(context); err != nil {
-		return fmt.Errorf("%v", err)
-	}
-
-	return nil
 }

@@ -32,7 +32,9 @@ func InitLogger(env string) error {
 
 func Default() *zap.Logger {
 	if Log == nil {
-		InitLogger("production")
+		if err := InitLogger("production"); err != nil {
+			panic(err)
+		}
 	}
 	return Log
 }
