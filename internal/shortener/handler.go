@@ -80,14 +80,14 @@ func (h *ShortenerHandler) DeleteURL(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"message": "URL deleted successfully"})
 }
 
-// func (h *ShortenerHandler) GetShortURL(ctx *gin.Context) {
-// 	url := ctx.Query("url")
+func (h *ShortenerHandler) GetShortURL(ctx *gin.Context) {
+	url := ctx.Query("url")
 
-// 	shortUrl, err := h.svc.GetShortURL(ctx, url)
-// 	if err != nil {
-// 		ctx.JSON(404, gin.H{"error": "Short URL not found"})
-// 		return
-// 	}
+	shortUrl, err := h.svc.GetShortURL(ctx, url)
+	if err != nil {
+		ctx.JSON(404, gin.H{"error": "Short URL not found"})
+		return
+	}
 
-// 	ctx.JSON(200, gin.H{"short_url": shortUrl})
-// }
+	ctx.JSON(200, gin.H{"short_url": shortUrl})
+}
