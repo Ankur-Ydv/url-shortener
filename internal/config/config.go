@@ -12,6 +12,7 @@ type Config struct {
 	DBPort    string
 	DBUser    string
 	DBPass    string
+	DBName    string
 	DBSSLMode string
 
 	RedisHost string
@@ -30,6 +31,7 @@ func LoadConfig() (*Config, error) {
 		DBPort:    getValue("DB_PORT", "5432"),
 		DBUser:    getValue("DB_USER", "postgres"),
 		DBPass:    getValue("DB_PASS", "password"),
+		DBName:    getValue("DB_NAME", "url_shortener"),
 		DBSSLMode: getValue("DB_SSL_MODE", "disable"),
 
 		RedisHost: getValue("REDIS_HOST", "localhost"),

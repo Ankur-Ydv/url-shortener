@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Ankur-Ydv/url-shortener/internal/config"
 	"github.com/Ankur-Ydv/url-shortener/internal/shortener"
@@ -26,7 +27,15 @@ func main() {
 	router := gin.New()
 	router.Use(logger.GinRequestLogger())
 
-	dsn := "postgres://" + cfg.DBUser + ":" + cfg.DBPass + "@" + cfg.DBHost + ":" + cfg.DBPort + "/postgres?sslmode=" + cfg.DBSSLMode
+	dsn := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.DBUser,
+		cfg.DBPass,
+		cfg.DBHost,
+		cfg.DBPort,
+		cfg.DBName,
+		cfg.DBSSLMode,
+	)
 
 	dbpool, err := postgres.GetPostgresConnection(context.Background(), dsn)
 	if err != nil {

@@ -30,16 +30,16 @@ func (h *ShortenerHandler) ShortenURL(ctx *gin.Context) {
 		return
 	}
 
-	shortUrl, err := h.svc.ShortenURL(ctx, req.URL, req.Expiry)
+	shortUrl, err := h.svc.ShortenURL(ctx, req.URL, req.ExpiresAt)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to shorten URL"})
+		ctx.JSON(500, gin.H{"error": err})
 		return
 	}
 
 	resp := Response{
-		URL:      req.URL,
-		ShortURL: shortUrl,
-		Expiry:   req.Expiry,
+		URL:       req.URL,
+		ShortURL:  shortUrl,
+		ExpiresAt: req.ExpiresAt,
 	}
 
 	ctx.JSON(200, resp)
