@@ -9,12 +9,12 @@ type Record struct {
 }
 
 type Request struct {
-	URL    string        `json:"url"`
-	Expiry time.Duration `json:"expiry"`
+	URL       string    `json:"url" binding:"required"`
+	ExpiresAt time.Time `json:"expires_at" binding:"required"`
 }
 
 type Response struct {
-	URL      string        `json:"url"`
-	ShortURL string        `json:"short_url"`
-	Expiry   time.Duration `json:"expiry"`
+	URL       string    `json:"url"`
+	ShortURL  string    `json:"short_url"`
+	ExpiresAt time.Time `json:"expires_at"`
 }

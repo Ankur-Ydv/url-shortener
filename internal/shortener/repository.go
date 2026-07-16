@@ -17,7 +17,7 @@ func NewShortenerRepository(dbPool *pgxpool.Pool) *ShortenerRepository {
 }
 
 const saveUrlQuery = `
-INSERT INTO urls (short_url, original_url, expiry) VALUES ($1, $2, $3)
+INSERT INTO records (short_url, url, expires_at) VALUES ($1, $2, $3)
 `
 
 func (r *ShortenerRepository) Save(ctx context.Context, record Record) error {
@@ -28,7 +28,7 @@ func (r *ShortenerRepository) Save(ctx context.Context, record Record) error {
 }
 
 const getUrlQuery = `
-SELECT original_url FROM urls WHERE short_url = $1 AND (expiry IS NULL OR expiry > NOW())
+SELECT url FROM records WHERE short_url = $1 AND (expires_at IS NULL OR expires_at > NOW())
 `
 
 func (r *ShortenerRepository) Get(ctx context.Context, shortUrl string) (string, error) {
@@ -44,7 +44,7 @@ func (r *ShortenerRepository) Get(ctx context.Context, shortUrl string) (string,
 }
 
 const deleteUrlQuery = `
-DELETE FROM urls WHERE short_url = $1
+DELETE FROM records WHERE short_url = $1
 `
 
 func (r *ShortenerRepository) Delete(ctx context.Context, shortUrl string) error {
@@ -54,7 +54,7 @@ func (r *ShortenerRepository) Delete(ctx context.Context, shortUrl string) error
 }
 
 const getShortUrlQuery = `
-SELECT short_url FROM urls WHERE original_url = $1 AND (expiry IS NULL OR expiry > NOW())
+SELECT short_url FROM urls WHERE original_url = $1 AND (expires_at IS NULL OR expires_at > NOW())
 `
 
 func (r *ShortenerRepository) GetShortURL(ctx context.Context, url string) (string, error) {

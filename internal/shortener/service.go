@@ -23,7 +23,7 @@ func NewShortenerService(repo *ShortenerRepository, redisClient *redis.Client) *
 	}
 }
 
-func (s *ShortenerService) ShortenURL(ctx context.Context, url string, expiry time.Duration) (string, error) {
+func (s *ShortenerService) ShortenURL(ctx context.Context, url string, expiresAt time.Time) (string, error) {
 	shortCode, err := generateShortCode(6)
 	if err != nil {
 		return "", err
@@ -32,7 +32,7 @@ func (s *ShortenerService) ShortenURL(ctx context.Context, url string, expiry ti
 	var record Record
 	record.URL = url
 	record.ShortURL = shortCode
-	record.ExpiresAt = time.Now().Add(expiry)
+	record.ExpiresAt = expiresAt
 
 	if err := s.repo.Save(ctx, record); err != nil {
 		return "", err
